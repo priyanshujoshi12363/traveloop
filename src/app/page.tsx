@@ -113,7 +113,7 @@ export default function WelcomePage() {
           </h1>
           
           <p className="text-xl md:text-2xl text-slate-600 mb-4">
-            Your AI-powered travel companion for smarter adventures
+            Your travel companion for smarter adventures
           </p>
           
           <div className="flex items-center justify-center gap-8 text-sm text-slate-500">

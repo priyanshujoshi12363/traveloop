@@ -1,4 +1,4 @@
-
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -25,6 +25,10 @@ model User {
   trips         Trip[]
   memberOf      TripMember[]
   notes         TripNote[]
+  packingItems  PackingItem[]
+  communityPosts CommunityPost[]
+  communityComments CommunityComment[]
+  communityLikes CommunityLike[]
 }
 
 model Trip {
@@ -50,8 +54,7 @@ model Trip {
   notes         TripNote[]
   activities    TripActivity[]
   budgetItems   BudgetItem[]
-  
-  @@unique([userId, title])
+  packingItems  PackingItem[]
 }
 
 model TripMember {
@@ -77,11 +80,11 @@ model TripStop {
   orderIndex    Int
   costIndex     String?
   popularity    Int?
-  stopNotes     String?  // <--- RENAMED to 'stopNotes' to avoid conflict
+  stopNotes     String?
   createdAt     DateTime @default(now())
   
   activities    TripActivity[]
-  tripNotes     TripNote[]  // <--- RENAMED to 'tripNotes' for the relation
+  tripNotes     TripNote[]
 }
 
 model TripActivity {
@@ -93,13 +96,14 @@ model TripActivity {
   name          String
   description   String?
   image         String?
-  category      String
+  activityType  String
   cost          Float?
   duration      String?
   location      String?
   time          String?
   isCompleted   Boolean  @default(false)
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model TripNote {
@@ -121,13 +125,30 @@ model BudgetItem {
   id            Int      @id @default(autoincrement())
   tripId        Int
   trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  category      String
+  budgetCategory String
   itemName      String
   cost          Float
   date          DateTime?
   isPaid        Boolean  @default(false)
   notes         String?
   createdAt     DateTime @default(now())
+}
+
+model PackingItem {
+  id            Int      @id @default(autoincrement())
+  tripId        Int
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  name          String
+  packingCategory String
+  isPacked      Boolean  @default(false)
+  quantity      Int      @default(1)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([tripId, userId, name])
 }
 
 model CityExploration {
@@ -144,4 +165,42 @@ model CityExploration {
   updatedAt     DateTime @updatedAt
   
   @@unique([name, country])
+}
+
+model CommunityPost {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  title         String
+  content       String
+  image         String?
+  category      String
+  likes         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  comments      CommunityComment[]
+  likedBy       CommunityLike[]
+}
+
+model CommunityComment {
+  id            Int      @id @default(autoincrement())
+  postId        Int
+  post          CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  content       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CommunityLike {
+  id            Int      @id @default(autoincrement())
+  postId        Int
+  post          CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@unique([postId, userId])
 }
