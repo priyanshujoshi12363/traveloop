@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,27 +7,141 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
+  id            Int      @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  email         String   @unique
+  password      String
+  phoneNumber   String?
+  city          String?
+  country       String?
+  bio           String?
+  profilePic    String?
+  language      String?  @default("en")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime?
 
-  id Int @id @default(autoincrement())
+  trips         Trip[]
+  memberOf      TripMember[]
+  notes         TripNote[]
+}
 
-  firstName String
-  lastName  String
+model Trip {
+  id            Int      @id @default(autoincrement())
+  title         String
+  destination   String
+  startDate     DateTime
+  endDate       DateTime
+  budget        Float
+  description   String?
+  coverImage    String?
+  status        String   @default("planned")
+  isPublic      Boolean  @default(false)
+  shareUrl      String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  email String @unique
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  
+  members       TripMember[]
+  stops         TripStop[]
+  notes         TripNote[]
+  activities    TripActivity[]
+  budgetItems   BudgetItem[]
+  
+  @@unique([userId, title])
+}
 
-  password String
+model TripMember {
+  id        Int      @id @default(autoincrement())
+  tripId    Int
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  role      String   @default("member")
+  joinedAt  DateTime @default(now())
+  
+  @@unique([tripId, userId])
+}
 
-  phoneNumber String?
+model TripStop {
+  id            Int      @id @default(autoincrement())
+  tripId        Int
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  cityName      String
+  country       String?
+  startDate     DateTime
+  endDate       DateTime
+  orderIndex    Int
+  costIndex     String?
+  popularity    Int?
+  stopNotes     String?  // <--- RENAMED to 'stopNotes' to avoid conflict
+  createdAt     DateTime @default(now())
+  
+  activities    TripActivity[]
+  tripNotes     TripNote[]  // <--- RENAMED to 'tripNotes' for the relation
+}
 
-  city    String?
-  country String?
+model TripActivity {
+  id            Int      @id @default(autoincrement())
+  tripId        Int
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  stopId        Int?
+  stop          TripStop? @relation(fields: [stopId], references: [id], onDelete: SetNull)
+  name          String
+  description   String?
+  image         String?
+  category      String
+  cost          Float?
+  duration      String?
+  location      String?
+  time          String?
+  isCompleted   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
 
-  bio String?
+model TripNote {
+  id            Int      @id @default(autoincrement())
+  tripId        Int
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  stopId        Int?
+  stop          TripStop? @relation(fields: [stopId], references: [id], onDelete: SetNull)
+  title         String?
+  content       String
+  isPrivate     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
 
-  profilePic String?
+model BudgetItem {
+  id            Int      @id @default(autoincrement())
+  tripId        Int
+  trip          Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  category      String
+  itemName      String
+  cost          Float
+  date          DateTime?
+  isPaid        Boolean  @default(false)
+  notes         String?
+  createdAt     DateTime @default(now())
+}
 
-  createdAt DateTime @default(now())
-  updatedAt    DateTime?
+model CityExploration {
+  id            Int      @id @default(autoincrement())
+  name          String
+  country       String
+  description   String?
+  image         String?
+  costIndex     String?
+  popularity    Int?
+  timeZone      String?
+  attractions   String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([name, country])
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
@@ -13,21 +13,6 @@ import {
   FiArrowRight,
   FiAlertCircle
 } from "react-icons/fi";
-
-// Import Google Fonts via Next.js
-import { Inter, Poppins } from "next/font/google";
-
-const inter = Inter({ 
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-inter",
-});
-
-const poppins = Poppins({ 
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-});
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -68,9 +53,13 @@ export default function RegisterPage() {
 
     try {
       const formDataToSend = new FormData();
+      
+      // Append all text fields
       Object.entries(formData).forEach(([key, value]) => {
         if (value) formDataToSend.append(key, value);
       });
+      
+      // Append image if selected
       if (image) {
         formDataToSend.append("image", image);
       }
@@ -83,10 +72,14 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (data.success) {
+        // Store token and user data
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Redirect to home
         router.push("/home");
       } else {
-        setError(data.message);
+        setError(data.message || "Registration failed");
       }
     } catch (error) {
       setError("Something went wrong. Please try again.");
@@ -96,19 +89,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#F8FAFC] flex items-center justify-center px-4 py-8 ${inter.variable} ${poppins.variable}`}>
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-lg">
-        {/* Card Container - Better spacing for desktop */}
+        {/* Card Container */}
         <div className="bg-white rounded-3xl shadow-2xl shadow-teal-100/30 p-6 sm:p-10 transition-all duration-300">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-10">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-teal-50 to-teal-100 rounded-full mb-5 shadow-inner">
               <FiUser className="w-10 h-10 text-teal-600" />
             </div>
-            <h1 className={`${poppins.className} text-3xl sm:text-4xl font-bold text-slate-800 mb-2 tracking-tight`}>
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-2 tracking-tight">
               Create Account
             </h1>
-            <p className={`${inter.className} text-slate-500 text-base sm:text-lg font-medium`}>
+            <p className="text-slate-500 text-base sm:text-lg font-medium">
               Join us and start your journey today
             </p>
           </div>
@@ -118,14 +111,14 @@ export default function RegisterPage() {
             {error && (
               <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-start gap-3">
                 <FiAlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                <span className={`${inter.className}`}>{error}</span>
+                <span>{error}</span>
               </div>
             )}
 
-            {/* Name Fields - Better responsive grid */}
+            {/* Name Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+                <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                   First Name
                 </label>
                 <div className="relative group">
@@ -136,14 +129,14 @@ export default function RegisterPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, firstName: e.target.value })
                     }
-                    className={`${inter.className} w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300`}
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                     placeholder="John"
                     required
                   />
                 </div>
               </div>
               <div>
-                <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+                <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                   Last Name
                 </label>
                 <div className="relative group">
@@ -154,7 +147,7 @@ export default function RegisterPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, lastName: e.target.value })
                     }
-                    className={`${inter.className} w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300`}
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                     placeholder="Doe"
                     required
                   />
@@ -164,7 +157,7 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+              <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                 Email Address
               </label>
               <div className="relative group">
@@ -175,7 +168,7 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className={`${inter.className} w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300`}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                   placeholder="you@example.com"
                   required
                 />
@@ -184,7 +177,7 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div>
-              <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+              <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                 Password
               </label>
               <div className="relative group">
@@ -195,7 +188,7 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className={`${inter.className} w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300`}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                   placeholder="Min. 8 characters"
                   required
                   minLength={8}
@@ -203,10 +196,10 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Phone & City - Responsive */}
+            {/* Phone & City */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+                <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                   Phone Number
                 </label>
                 <div className="relative group">
@@ -217,13 +210,13 @@ export default function RegisterPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, phoneNumber: e.target.value })
                     }
-                    className={`${inter.className} w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300`}
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                     placeholder="+1 234 567 890"
                   />
                 </div>
               </div>
               <div>
-                <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+                <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                   City
                 </label>
                 <div className="relative group">
@@ -234,7 +227,7 @@ export default function RegisterPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, city: e.target.value })
                     }
-                    className={`${inter.className} w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300`}
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                     placeholder="New York"
                   />
                 </div>
@@ -243,7 +236,7 @@ export default function RegisterPage() {
 
             {/* Country */}
             <div>
-              <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+              <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                 Country
               </label>
               <div className="relative group">
@@ -254,15 +247,31 @@ export default function RegisterPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, country: e.target.value })
                   }
-                  className={`${inter.className} w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300`}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                   placeholder="United States"
                 />
               </div>
             </div>
 
-            {/* Profile Picture - Better responsive */}
+            {/* Bio */}
             <div>
-              <label className={`${poppins.className} block text-sm font-semibold text-slate-700 mb-2.5`}>
+              <label className="block text-sm font-semibold text-slate-700 mb-2.5">
+                Bio
+              </label>
+              <textarea
+                value={formData.bio}
+                onChange={(e) =>
+                  setFormData({ ...formData, bio: e.target.value })
+                }
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                rows={3}
+                placeholder="Tell us about yourself..."
+              />
+            </div>
+
+            {/* Profile Picture */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2.5">
                 Profile Picture
               </label>
               <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
@@ -280,7 +289,7 @@ export default function RegisterPage() {
                   )}
                 </div>
                 <label className="cursor-pointer w-full sm:w-auto">
-                  <span className={`${inter.className} inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 bg-teal-50 text-teal-600 rounded-xl hover:bg-teal-100 transition-all duration-300 text-sm font-semibold`}>
+                  <span className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 bg-teal-50 text-teal-600 rounded-xl hover:bg-teal-100 transition-all duration-300 text-sm font-semibold">
                     <FiCamera className="w-4 h-4 mr-2" />
                     Upload Photo
                   </span>
@@ -294,11 +303,11 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Submit Button - Bigger on desktop */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className={`${poppins.className} w-full py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 disabled:from-teal-300 disabled:to-teal-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-500/25 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-white text-base sm:text-lg flex items-center justify-center gap-2`}
+              className="w-full py-4 bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 disabled:from-teal-300 disabled:to-teal-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-500/25 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-white text-base sm:text-lg flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <span className="flex items-center gap-3">
@@ -313,8 +322,8 @@ export default function RegisterPage() {
               )}
             </button>
 
-            {/* Sign In Link - Responsive text */}
-            <p className={`${inter.className} text-center text-slate-500 text-sm sm:text-base`}>
+            {/* Sign In Link */}
+            <p className="text-center text-slate-500 text-sm sm:text-base">
               Already have an account?{" "}
               <Link
                 href="/auth/login"
